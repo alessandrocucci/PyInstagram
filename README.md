@@ -143,6 +143,8 @@ for m in media:
 ```
 
 ### Cerca i 3 più simili hashtag in base al numero di post
+Il metodo search_for_tag restituisce un dizionario avente come chiavi gli hashtag e come valore la count dei post.
+
 ```python
 tags = app.search_for_tag("python")
 print(tags)
