@@ -4,6 +4,7 @@ from operator import itemgetter
 import requests
 import time
 
+from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
 
 
@@ -54,11 +55,12 @@ class InstagramClient(object):
             print("Rate Limit, vado a nanna")
             self.go_to_sleep()
             return 0
+        elif request.status_code == 400:
+            raise OAuthException(request.json()['meta']['error_message'])
+        elif "<!DOCTYPE html>" in request.text:
+            raise PyInstagramException("Page not found")
         else:
-            # Scambiato per un bot? La documentazione non mi dice il codice...
-            print(request.text)
-            self.go_to_sleep()
-            return 0
+            raise PyInstagramException
 
     def get_by_user(self, id_user=None):
         id_user = id_user or "self"
