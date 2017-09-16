@@ -10,7 +10,7 @@ from .oauth import OAuth
 
 class InstagramClient(object):
     """
-    Classe principale della libreria!
+    Classe base della libreria!
     """
     def __init__(self, access_token=None):
         self.access_token = access_token
@@ -23,15 +23,23 @@ class InstagramClient(object):
     @staticmethod
     def go_to_sleep(seconds=3600):
         """
-        Questo metodo viene chiamato quando si riceve una risposta non OK,
-        probabilmente si è raggiunto il limite consentito dall'API, o il
-        server non è temporaneamente raggiungibile, così metto in pausa
-        il programma!
+        Questo metodo viene chiamato quando è stato raggiunto il
+        limite consentito dall'API, se succede metto in pausa il
+        programma per un'ora.
+
         :return: None
         """
         time.sleep(seconds)
 
     def _make_request(self, uri, method='get', data=None):
+        """
+        Metodo che effettua la richiesta alle API Instagram.
+
+        :param uri: str - L'Uri da chiamare
+        :param method: str - metodo http con cui fare la richiesta
+        :param data: dict - dizionario con i dati da passare nella richiesta
+        :return: list - lista di dati di risposta
+        """
         retry = 1  # serve per ripetere la chiamata dopo un ora se supero il limite di richieste
         res = []
         while retry:
@@ -43,6 +51,18 @@ class InstagramClient(object):
         return res
 
     def _handle_response(self, request):
+        """
+        Una volta effettuata la chiamata, ci occupiamo di
+        interpretarne la risposta.
+
+        Se la richiesta è andata a buon fine, restituiamo la
+        lista dei dati, altrimenti o mettiamo in pausa il
+        programma (se abbiamo raggiunto il limite dell'API)
+        o solleviamo un'eccezione appropriata.
+
+        :param request: requests - la risposta della chiamata
+        :return: list - lista dei dati ricevuti
+        """
         if request.status_code == 200:
             # Tutto ok!
             try:
@@ -63,12 +83,27 @@ class InstagramClient(object):
             raise PyInstagramException
 
     def get_by_user(self, id_user=None):
+        """
+        Metodo usato per cercare gli ultimi post di un utente.
+        Se non viene passato il paramentro id_user, chiederemo
+        i post dell'utente che ha autorizzato l'app.
+
+        :param id_user: str - post dell'utente da cercare
+        :return: list - lista dati
+        """
         id_user = id_user or "self"
         url = "https://api.instagram.com/v1/" \
               "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token)
         return self._make_request(url)
 
     def get_by_hashtag(self, tags=(), count=20):
+        """
+        Metodo usato per cercare i post con uno o più hashtag.
+
+        :param tags: iterable - gli hashtag da cercare
+        :param count: int - massimo numero di risultati da restituire
+        :return: list - lista di dati
+        """
         if isinstance(tags, str):
             tags = (tags, )
         all_media = []
@@ -81,6 +116,13 @@ class InstagramClient(object):
         return all_media
 
     def search_for_tag(self, tag, top=3):
+        """
+        Metodo usato per cercare hashtag simili a un altro.
+
+        :param tag: str - hashtag da cercare
+        :param top: int - limita a un numero di hashtag
+        :return: dict
+        """
         url = "https://api.instagram.com/v1/tags/search?q={0}&access_token={1}".format(tag, self.access_token)
         res = self._make_request(url)
         res = sorted(res, key=itemgetter('media_count'))
