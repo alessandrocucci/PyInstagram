@@ -30,6 +30,17 @@ class InstagramClient(object):
         """
         time.sleep(seconds)
 
+    def _make_request(self, uri, method='get', data=None):
+        retry = 1  # serve per ripetere la chiamata dopo un ora se supero il limite di richieste
+        res = []
+        while retry:
+            res = getattr(requests, method)(uri, data=data)
+            res = self._handle_response(res)
+            if isinstance(res, int) and res == 1:
+                continue
+            retry = 0
+        return res
+
     def _handle_response(self, request):
         if request.status_code == 200:
             # Tutto ok!
@@ -42,34 +53,34 @@ class InstagramClient(object):
             # OAuthRateLimitException
             print("Rate Limit, vado a nanna")
             self.go_to_sleep()
-            return []
+            return 0
         else:
             # Scambiato per un bot? La documentazione non mi dice il codice...
             print(request.text)
             self.go_to_sleep()
-            return []
+            return 0
 
     def get_by_user(self, id_user=None):
         id_user = id_user or "self"
-        res = requests.get("https://api.instagram.com/v1/"
-                           "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token))
-        return self._handle_response(res)
+        url = "https://api.instagram.com/v1/" \
+              "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token)
+        return self._make_request(url)
 
     def get_by_hashtag(self, tags=(), count=20):
         if isinstance(tags, str):
             tags = (tags, )
         all_media = []
         for tag in tags:
-            res = requests.get("https://api.instagram.com/v1/"
-                               "tags/{0}/media/recent?access_token={1}"
-                               "&count={2}".format(tag, self.access_token, count))
-            res = self._handle_response(res)
+            url = "https://api.instagram.com/v1/" \
+                  "tags/{0}/media/recent?access_token={1}" \
+                  "&count={2}".format(tag, self.access_token, count)
+            res = self._make_request(url)
             all_media.extend(res)
         return all_media
 
     def search_for_tag(self, tag, top=3):
-        res = requests.get("https://api.instagram.com/v1/tags/search?q={0}&access_token={1}".format(tag, self.access_token))
-        res = self._handle_response(res)
+        url = "https://api.instagram.com/v1/tags/search?q={0}&access_token={1}".format(tag, self.access_token)
+        res = self._make_request(url)
         res = sorted(res, key=itemgetter('media_count'))
         names = {r['name']: r['media_count'] for r in res[:top]}
         return names
