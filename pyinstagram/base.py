@@ -18,7 +18,7 @@ class InstagramClient(object):
             self.access_token = access_token.access_token
         if not self.access_token:
             # TODO: Gestire il caso in cui l'access token scada
-            raise Exception("Per usare la libreria devi prima autenticarti!")
+            raise OAuthException("Per usare la libreria devi prima autenticarti!")
 
     @staticmethod
     def go_to_sleep(seconds=3600):
