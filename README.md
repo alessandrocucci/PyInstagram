@@ -15,18 +15,18 @@ PyInstagram è una libreria creata con lo scopo di semplificare l'integrazione d
   - Ricerca hashtag simili (in base al numero di post)
 
 
-### Installazione
+## Installazione
 
 PyInstagram è stata scritta usando [Python 3](https://www.python.org/).
 
-Per essere utilizzata, basterà installarla con i seguenti comandi:
+Per installarla, lancia il seguente comando:
 
 ```sh
 $ pip install git+https://github.com/alessandrocucci/PyInstagram.git
 ```
 
-### Utilizzo
-#### Autenticazione
+## Utilizzo
+### Autenticazione
 Dopo aver creato una app Instagram ([https://www.instagram.com/developer/](https://www.instagram.com/developer/)), le informazioni che ci servono sono:
 - id_client
 - client_secret
@@ -52,17 +52,20 @@ print(auth.get_request_url())
 code = input("Inserisci il codice ricevuto: ")
 auth.get_access_token(code)
 ```
-Eseguendo questo script riceveremo il seguente output:
+Eseguendo questo script da terminale troverete un link 
+come questo e un prompt che attende l'inserimento di un codice:
 ```
 https://api.instagram.com/oauth/authorize/?client_id=ilClientID&redirect_uri=http://ilNostroUri&response_type=code&scope=basic+public_content
 Inserisci il codice ricevuto:
 ```
-Visitando il link, Instagram ci chiederà di loggarci e autorizzare l'app. Una volta acconsentito, verremo reindirizzati a un link del tipo http://ilNostroUri?code=34873627498476284943
+Visitando il link nel browser, Instagram vi chiederà di loggarvi e se autorizzare l'uso dell'applicazione. 
+Una volta acconsentito, verremo reindirizzati a un link del tipo http://ilNostroUri?code=34873627498476284943
 
-Quello che dovremo fare, sarà copiare il codice generato (quello dopo 'code='), e incollarlo nel programma, che nel frattempo è li in attesa. Se tutto va a buon fine, l'oggetto auth ha tutto quello che gli serve per poter dialogare con le API di Instagram.
+Quello che dovremo fare, sarà copiare il codice generato (quello dopo 'code='), e incollarlo nel programma, che nel frattempo è li in attesa. Se tutto va a buon fine, 
+l'oggetto auth avrà tutti gli attributi settati per permetterci di dialogare con le API di Instagram, e ottenere i dati che ci servono.
 
-#### Formato degli oggetti delle risposte
-I metodi in get di InstagramClient restituiscono una lista (o un'eccezione se qualcosa va storto) di dizionari fatti in questo modo:
+### Struttura degli oggetti delle risposte
+Quasi tutti i metodi in get di InstagramClient restituiscono una lista (o un'eccezione se qualcosa va storto) di dizionari fatti in questo modo:
 
 ```python
 [{'caption': {'created_time': '1296710352',
@@ -76,15 +79,16 @@ I metodi in get di InstagramClient restituiscono una lista (o un'eccezione se qu
   'created_time': '1296710327',
   'filter': 'Earlybird',
   'id': '22721881',
-  'images': {'low_resolution': {'height': 306,
-                                'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
-                                'width': 306},
-             'standard_resolution': {'height': 612,
-                                     'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
-                                     'width': 612},
-             'thumbnail': {'height': 150,
-                           'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
-                           'width': 150}},
+  'images': {
+    'low_resolution': {'height': 306,
+                       'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                       'width': 306},
+    'standard_resolution': {'height': 612,
+                            'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                            'width': 612},
+    'thumbnail': {'height': 150,
+                  'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                  'width': 150}},
   'likes': {'count': 15},
   'link': 'http://instagr.am/p/BWrVZ/',
   'location': {'id': '520640',
@@ -95,15 +99,16 @@ I metodi in get di InstagramClient restituiscono una lista (o un'eccezione se qu
   'tags': ['foodtruck'],
   'type': 'image',
   'user': {'id': '3',
-           'profile_picture': 'http://distillery.s3.amazonaws.com/profiles/profile_3_75sq_1295574122.jpg',
+           'profile_picture': 'http://distillery.s3.amazonaws.com/[...].jpg',
            'username': 'kevin'},
   'users_in_photo': []}]
 ```
+E adesso, un po' di esempi di utilizzo della libreria vera e propria:
 
-Da questi oggetti, avremo tutto quello che ci serve per poter lavorare nei nostri programmi, come gli esempi qui sotto.
+### Post recenti della NASA
+NB. Questo necessita un'app che non sia in modalità Sandbox 
+(a meno che non siate voi stessi i proprietari dell'account della Nasa...)
 
-#### Post recenti della NASA
-NB. Questo necessita un'app che non sia in modalità Sandbox.
 ```python
 from datetime import datetime
 
@@ -118,7 +123,8 @@ for m in media:
     ).strftime('%Y-%m-%d %H:%M:%S')))
 ```
 
-#### Ultimi 10 post dell'utente che ha autorizzato l'uso dell'app
+### Gli ultimi 10 post pubblicati 
+###### (dall'utente che ha autorizzato l'uso dell'applicazione)
 ```python
 from datetime import datetime
 
@@ -134,7 +140,7 @@ for m in media[:limit]:
     ).strftime('%Y-%m-%d %H:%M:%S')))
 ```
 
-#### Ricerca per hashtag
+### Ricerca per hashtag
 ```python
 media = app.get_by_hashtag("salento")
 for m in media:
@@ -142,22 +148,20 @@ for m in media:
     print("Likes: {}".format(m['likes']['count']))
 ```
 
-### Cerca i 3 più simili hashtag in base al numero di post
-Il metodo search_for_tag restituisce un dizionario avente come chiavi gli hashtag e come valore la count dei post.
+### Ricerca di hashtag simili, in base al numero di post
 
 ```python
 tags = app.search_for_tag("python")
 print(tags)
 ```
 
-### Development
+## Development
 
 Vuoi darmi una mano a completarne lo sviluppo? Eccellente!
 
-Forka il repository, scrivi le tue modifiche, e chiedimi una Pull Request. Revisionerò il tuo codice e alla fine farò un merge con le modifiche, oppure ti scriverò i miei commenti se non dovessero piacermi.
-Ovviamente, la libreria è sotto licenza MIT, quindi nulla ti vieta di copiare il codice e andare avanti per la tua strada, senza tenermi in considerazione.
+Forka il repository, scrivi le tue modifiche, e mandami una Pull Request.
 
-### Todo
+## Todo
 
  - Gestire il caso in cui un access token scada
  - Aggiungere ricerca per geolocalizzazione
