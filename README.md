@@ -61,6 +61,47 @@ Visitando il link, Instagram ci chiederà di loggarci e autorizzare l'app. Una v
 
 Quello che dovremo fare, sarà copiare il codice generato (quello dopo 'code='), e incollarlo nel programma, che nel frattempo è li in attesa. Se tutto va a buon fine, l'oggetto auth ha tutto quello che gli serve per poter dialogare con le API di Instagram.
 
+#### Formato degli oggetti delle risposte
+I metodi in get di InstagramClient restituiscono una lista (o un'eccezione se qualcosa va storto) di dizionari fatti in questo modo:
+
+```python
+[{'caption': {'created_time': '1296710352',
+              'from': {'full_name': 'Kevin Systrom',
+                       'id': '3',
+                       'type': 'user',
+                       'username': 'kevin'},
+              'id': '26621408',
+              'text': 'Inside le truc #foodtruck'},
+  'comments': {'count': 0},
+  'created_time': '1296710327',
+  'filter': 'Earlybird',
+  'id': '22721881',
+  'images': {'low_resolution': {'height': 306,
+                                'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                                'width': 306},
+             'standard_resolution': {'height': 612,
+                                     'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                                     'width': 612},
+             'thumbnail': {'height': 150,
+                           'url': 'http://distillery.s3.amazonaws.com/[...].jpg',
+                           'width': 150}},
+  'likes': {'count': 15},
+  'link': 'http://instagr.am/p/BWrVZ/',
+  'location': {'id': '520640',
+               'latitude': 37.77872018361018,
+               'longitude': -122.3962783813477,
+               'name': 'Le Truc',
+               'street_address': ''},
+  'tags': ['foodtruck'],
+  'type': 'image',
+  'user': {'id': '3',
+           'profile_picture': 'http://distillery.s3.amazonaws.com/profiles/profile_3_75sq_1295574122.jpg',
+           'username': 'kevin'},
+  'users_in_photo': []}]
+```
+
+Da questi oggetti, avremo tutto quello che ci serve per poter lavorare nei nostri programmi, come gli esempi qui sotto.
+
 #### Post recenti della NASA
 NB. Questo necessita un'app che non sia in modalità Sandbox.
 ```python
