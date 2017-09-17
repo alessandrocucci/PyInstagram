@@ -4,6 +4,7 @@ from operator import itemgetter
 import requests
 import time
 
+from pyinstagram.endpoints.users_model import UserMedia
 from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
 
@@ -94,7 +95,15 @@ class InstagramClient(object):
         id_user = id_user or "self"
         url = "https://api.instagram.com/v1/" \
               "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token)
-        return self._make_request(url)
+        raw_list = self._make_request(url)
+        for media in raw_list:
+            print media
+            caption = media.get('caption', {}) or {}
+            media['caption'] = caption
+            caption.setdefault('from', "")
+            media['caption']['_from'] = media['caption'].pop('from')
+        res = [UserMedia(**media) for media in raw_list]
+        return res
 
     def get_by_hashtag(self, tags=(), count=20):
         """
