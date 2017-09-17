@@ -163,6 +163,7 @@ Forka il repository, scrivi le tue modifiche, e mandami una Pull Request.
 
 ## Todo
 
+ - Trasformare tutti gli endpoint in oggetti SqlAlchemy
  - Gestire il caso in cui un access token scada
  - Aggiungere ricerca per geolocalizzazione
  - Aggiungere filtri per min_id e max_id
