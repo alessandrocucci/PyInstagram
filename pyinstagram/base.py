@@ -8,6 +8,11 @@ from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
 
 
+class DotDict(dict):
+    def __getattr__(self, name):
+        return self[name]
+
+
 class InstagramClient(object):
     """
     Classe base della libreria!
@@ -41,14 +46,15 @@ class InstagramClient(object):
         :return: list - lista di dati di risposta
         """
         retry = 1  # serve per ripetere la chiamata dopo un ora se supero il limite di richieste
-        res = []
+        res_list = []
         while retry:
             res = getattr(requests, method)(uri, data=data)
             res = self._handle_response(res)
             if isinstance(res, int) and res == 1:
                 continue
             retry = 0
-        return res
+            res_list.extend(res)
+        return res_list
 
     def _handle_response(self, request):
         """
