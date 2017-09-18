@@ -4,9 +4,9 @@ from operator import itemgetter
 import requests
 import time
 
-from pyinstagram.endpoints.users_model import UserMedia
 from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
+from .constants import API_URL
 
 
 class InstagramClient(object):
@@ -41,15 +41,16 @@ class InstagramClient(object):
         :param data: dict - dizionario con i dati da passare nella richiesta
         :return: list - lista di dati di risposta
         """
+        next_url = ""  # per la paginazione
         retry = 1  # serve per ripetere la chiamata dopo un ora se supero il limite di richieste
         res = []
         while retry:
             res = getattr(requests, method)(uri, data=data)
-            res = self._handle_response(res)
+            res, next_url = self._handle_response(res)
             if isinstance(res, int) and res == 1:
                 continue
             retry = 0
-        return res
+        return res, next_url
 
     def _handle_response(self, request):
         """
@@ -68,12 +69,15 @@ class InstagramClient(object):
             # Tutto ok!
             try:
                 res = request.json()
-                return res['data']
             except Exception:
                 raise Exception(request.text)
+            else:
+                data = res['data']
+                next_url = res['pagination'].get('next_url')
+                return data, next_url
+
         elif request.status_code == 429:
             # OAuthRateLimitException
-            print("Rate Limit, vado a nanna")
             self.go_to_sleep()
             return 0
         elif request.status_code == 400:
@@ -83,29 +87,31 @@ class InstagramClient(object):
         else:
             raise PyInstagramException
 
-    def get_by_user(self, id_user=None):
+    def get_by_user(self, id_user=None, count=0):
         """
         Metodo usato per cercare gli ultimi post di un utente.
         Se non viene passato il paramentro id_user, chiederemo
         i post dell'utente che ha autorizzato l'app.
 
         :param id_user: str - post dell'utente da cercare
+        :param count: int - limita a {count} risultati
         :return: list - lista dati
         """
+        all_media = []
         id_user = id_user or "self"
-        url = "https://api.instagram.com/v1/" \
-              "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token)
-        raw_list = self._make_request(url)
-        for media in raw_list:
-            print media
-            caption = media.get('caption', {}) or {}
-            media['caption'] = caption
-            caption.setdefault('from', "")
-            media['caption']['_from'] = media['caption'].pop('from')
-        res = [UserMedia(**media) for media in raw_list]
-        return res
+        url = API_URL + "users/{0}/media/recent/?access_token={1}".format(id_user, self.access_token)
+        if count:
+            url += "&count={}".format(count)
+        raw_list, next_url = self._make_request(url)
+        all_media.extend(raw_list)
+        if len(all_media) > count:
+            return all_media[:count]
+        while next_url:
+            raw_list, next_url = self._make_request(next_url)
+            all_media.extend(raw_list)
+        return all_media[:count]
 
-    def get_by_hashtag(self, tags=(), count=20):
+    def get_by_hashtag(self, tags=(), count=0):
         """
         Metodo usato per cercare i post con uno o più hashtag.
 
@@ -117,23 +123,26 @@ class InstagramClient(object):
             tags = (tags, )
         all_media = []
         for tag in tags:
-            url = "https://api.instagram.com/v1/" \
-                  "tags/{0}/media/recent?access_token={1}" \
-                  "&count={2}".format(tag, self.access_token, count)
-            res = self._make_request(url)
-            all_media.extend(res)
+            url = API_URL + "tags/{0}/media/recent?access_token={1}".format(tag, self.access_token)
+            if count:
+                url += "&count={}".format(count)
+            raw_list, next_url = self._make_request(url)
+            all_media.extend(raw_list)
+            while next_url:
+                raw_list, next_url = self._make_request(next_url)
+                all_media.extend(raw_list)
         return all_media
 
-    def search_for_tag(self, tag, top=3):
+    def search_for_tag(self, tag, count=3):
         """
         Metodo usato per cercare hashtag simili a un altro.
 
         :param tag: str - hashtag da cercare
-        :param top: int - limita a un numero di hashtag
+        :param count: int - limita a un numero di hashtag
         :return: dict
         """
-        url = "https://api.instagram.com/v1/tags/search?q={0}&access_token={1}".format(tag, self.access_token)
+        url = API_URL + "tags/search?q={0}&access_token={1}".format(tag, self.access_token)
         res = self._make_request(url)
         res = sorted(res, key=itemgetter('media_count'))
-        names = {r['name']: r['media_count'] for r in res[:top]}
+        names = {r['name']: r['media_count'] for r in res[:count]}
         return names
