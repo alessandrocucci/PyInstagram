@@ -80,7 +80,7 @@ class InstagramClient(object):
                 raise Exception(request.text)
             else:
                 data = res['data']
-                next_url = res['pagination'].get('next_url')
+                next_url = res.get('pagination', {}).get('next_url')
                 return data, next_url
 
         elif request.status_code == 429:
@@ -149,7 +149,7 @@ class InstagramClient(object):
         :return: dict
         """
         url = API_URL + "tags/search?q={0}&access_token={1}".format(tag, self.access_token)
-        res = self._make_request(url)
+        res, _ = self._make_request(url)
         res = sorted(res, key=itemgetter('media_count'))
         names = {r['name']: r['media_count'] for r in res[:count]}
         return names

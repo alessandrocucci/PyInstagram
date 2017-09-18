@@ -21,16 +21,19 @@ app = InstagramClient(auth)
 
 
 # RECENT MEDIA - LAST 10
-media = app.get_by_user()
-for m in media[:10]:
+media = app.get_by_user(count=3)
+for m in media:
     print(m.get('caption', {}).get('text', "Senza Titolo"))
     print("Postato il {}\n".format(datetime.fromtimestamp(
         int(m['created_time'])
     ).strftime('%Y-%m-%d %H:%M:%S')))
-
 
 # SEARCH by HASHTAG
 media = app.get_by_hashtag("salento")
 for m in media:
     print(m['caption'].get('text'))
     print("Likes: {}".format(m['likes']['count']))
+
+tags = app.search_for_tag("developer", count=3)
+for tag, count in tags.items():
+    print("{0}\t{1}".format(tag, count))

@@ -105,24 +105,6 @@ Quasi tutti i metodi in get di InstagramClient restituiscono una lista (o un'ecc
 ```
 E adesso, un po' di esempi di utilizzo della libreria vera e propria:
 
-### Post recenti della NASA
-NB. Questo necessita un'app che non sia in modalità Sandbox 
-(a meno che non siate voi stessi i proprietari dell'account della Nasa...)
-
-```python
-from datetime import datetime
-
-from pyinstagram import InstagramClient
-app = InstagramClient(auth)
-
-media = app.get_by_user("nasa")
-for m in media:
-    print(m.get('caption', {}).get('text', "Senza Titolo"))
-    print("Postato il {}\n".format(datetime.fromtimestamp(
-        int(m['created_time'])
-    ).strftime('%Y-%m-%d %H:%M:%S')))
-```
-
 ### Gli ultimi 10 post pubblicati 
 ###### (dall'utente che ha autorizzato l'uso dell'applicazione)
 ```python
@@ -139,6 +121,49 @@ for m in media:
     ).strftime('%Y-%m-%d %H:%M:%S')))
 ```
 
+```
+#homesweethome 🏡
+Postato il 2017-09-07 19:26:35
+
+Gente che ha fretta di andare a mangiare, e io che mi devo ancora svegliare...
+Postato il 2017-09-03 13:48:53
+
+Ho due cuori.
+Uno è del nord, indipendente e impegnato, libero e incasinato. 
+Si sposta in metro o scansa, in bici, i binari dei tram. Profuma di spritz e pioggia, di libri e piatti caldi. 
+L'altro è terrone. Sa di salsedine e arance,  profuma di gelsi, di fichi e di uva. Ha il colore dei pomodori maturi e la consistenza del pane cotto a legna. 
+Batte lento perchè non ha mai fretta di arrivare, perché chi aspetta può aspettare. 
+Ho due cuori che non si amano tanto. 
+Quando uno batte, l'altro tace. 
+Quando è il momento di partire,
+Nulla batte
+Ti senti morire.
+Prima o poi faranno pace. 
+Ciao Puglia. 
+(Maddalena Fontanella - Inchiostro di Puglia)
+Postato il 2017-08-27 20:32:01
+
+[...]
+```
+
+### Post recenti della NASA
+NB. Questo necessita un'app che non sia in modalità Sandbox 
+(a meno che non siate voi stessi i proprietari dell'account della Nasa...)
+
+```python
+from datetime import datetime
+
+from pyinstagram import InstagramClient
+app = InstagramClient(auth)
+
+media = app.get_by_user("nasa", count=20)
+for m in media:
+    print(m.get('caption', {}).get('text', "Senza Titolo"))
+    print("Postato il {}\n".format(datetime.fromtimestamp(
+        int(m['created_time'])
+    ).strftime('%Y-%m-%d %H:%M:%S')))
+```
+
 ### Ricerca per hashtag
 ```python
 media = app.get_by_hashtag("salento")
@@ -147,11 +172,24 @@ for m in media:
     print("Likes: {}".format(m['likes']['count']))
 ```
 
+```
+Quando il tuo lavoro è anche la tua piú grande passione, ti diverti anche in ferie! Ultimi test e settaggi video e siamo pronti per sabato notte! #itsvr #virtualreality #livestreaming #nottedellataranta2017 #salento
+Likes: 14
+Hello from the other side! #boat #salento #gallipoli #estate2017  #miabbronzoconifiltri
+Likes: 16
+```
+
 ### Ricerca di hashtag simili, in base al numero di post
 
 ```python
-tags = app.search_for_tag("python", count=3)
+tags = app.search_for_tag("developer", count=3)
 print(tags)
+```
+
+```
+developerextraordinaire         128
+developeraplikasiandroid	132
+developeredition	        146
 ```
 
 ## Development
