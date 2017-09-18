@@ -131,9 +131,8 @@ from datetime import datetime
 from pyinstagram import InstagramClient
 app = InstagramClient(auth)
 
-limit = 10
-media = app.get_by_user()
-for m in media[:limit]:
+media = app.get_by_user(count=10)
+for m in media:
     print(m.get('caption', {}).get('text', "Senza Titolo"))
     print("Postato il {}\n".format(datetime.fromtimestamp(
         int(m['created_time'])
@@ -151,7 +150,7 @@ for m in media:
 ### Ricerca di hashtag simili, in base al numero di post
 
 ```python
-tags = app.search_for_tag("python")
+tags = app.search_for_tag("python", count=3)
 print(tags)
 ```
 
