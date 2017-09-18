@@ -78,7 +78,6 @@ class InstagramClient(object):
                 raise Exception(request.text)
         elif request.status_code == 429:
             # OAuthRateLimitException
-            print("Rate Limit, vado a nanna")
             self.go_to_sleep()
             return 0
         elif request.status_code == 400:

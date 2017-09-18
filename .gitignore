@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyCharm stuff:
+.idea/
+
+# virtualenv
+.venv
+venv/
+ENV/
+
+.gitignore
+test_app/
