@@ -29,6 +29,7 @@ class InstagramApiClient(object):
         limite consentito dall'API, se succede metto in pausa il
         programma per un'ora.
 
+        :param seconds: int - Numero di secondi di attesa
         :return: None
         """
         time.sleep(seconds)
