@@ -1,4 +1,4 @@
-# PyInstagram
+# PyInstagram <img src="https://instagram-brand.com/wp-content/themes/ig-branding/assets/images/ig-logo-email.png" width="48">
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 [![python](https://img.shields.io/badge/python-3.6-orange.svg)]()
