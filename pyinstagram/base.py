@@ -10,11 +10,6 @@ from .oauth import OAuth
 from .constants import API_URL
 
 
-class DotDict(dict):
-    def __getattr__(self, name):
-        return self[name]
-
-
 class InstagramApiClient(object):
     """
     Classe base per le chiamate all'API ufficiale!
