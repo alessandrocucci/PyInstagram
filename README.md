@@ -305,6 +305,12 @@ pprint(media[0])
           'username': 'cern'}}
 ```
 
+```python
+from IPython.display import Image
+Image(url=media[0]['images']['low_resolution']['url'])
+```
+[![python](https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s320x320/e35/21826926_350191838726778_3833791523279863808_n.jpg)]()
+
 ### Top post con hashtag #milanofashionweek
 
 ```python
