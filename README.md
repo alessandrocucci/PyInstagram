@@ -3,7 +3,10 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 [![python](https://img.shields.io/badge/python-3.6-orange.svg)]()
 
-PyInstagram è una libreria creata con lo scopo di ottenere dati da Instagram in modo semplice, per poterli usare in un progetto Python. Si compone di tre classi principali:
+PyInstagram è una libreria creata con lo scopo di semplificare le chiamate HTTP ai server di
+ Instagram, ottenere dati in un comodo formato "pythonico", e poterli usare in un progetto. 
+ 
+Si compone di tre classi principali:
 
   - **OAuth**: per la gestione dell'autenticazione al fine di ottenere un access token
   - **InstagramApiClient**: che si occupa di fare le chiamate all'API ufficiale
@@ -195,11 +198,11 @@ developeredition	        146
 
 ## InstagramJsonClient
 Questa è la classe per i patiti di Big Data, vi permette di scaricare tutti i dati
-principali riferiti a utenti, hashtag e location. 
-Per usarla, non serve nessun access token, la libreria scaricherà tutti i dati pubblici.
+principali cercandoli per nome utente o hashtag. 
+Per usarla, non c'è bisogno di usare la classe OAuth per ottenere un access token.
 
 DISCLAIMER: Non si tratta dell'api ufficiale, i link per scaricare questi dati sono stati
-trovati in rete su altri repository (puntano comunque tutti al dominio ufficiale Instagram).
+trovati in rete su altri repository (tutte le chiamate puntano in ogni caso al dominio ufficiale Instagram).
 Nel dubbio, fare sempre riferimento alla policy ufficiale:
 https://www.instagram.com/about/legal/terms/api/
 
