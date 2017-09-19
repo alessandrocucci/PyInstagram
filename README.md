@@ -199,7 +199,9 @@ principali riferiti a utenti, hashtag e location.
 Per usarla, non serve nessun access token, la libreria scaricherà tutti i dati pubblici.
 
 DISCLAIMER: Non si tratta dell'api ufficiale, i link per scaricare questi dati sono stati
-trovati in rete su altri repository (puntano comunque tutti al dominio ufficiale Instagram)
+trovati in rete su altri repository (puntano comunque tutti al dominio ufficiale Instagram).
+Nel dubbio, fare sempre riferimento alla policy ufficiale:
+https://www.instagram.com/about/legal/terms/api/
 
 Ecco alcuni esempi:
 
