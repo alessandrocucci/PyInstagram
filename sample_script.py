@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from pyinstagram import OAuth, InstagramClient
+from pprint import pprint
+
+from pyinstagram import OAuth, InstagramApiClient, InstagramJsonClient
 
 CLIENT_ID = ""
 CLIENT_SECRET = ""
@@ -17,7 +19,7 @@ auth = OAuth(
 print(auth.get_request_url())
 code = input("Inserisci il codice ricevuto: ")
 auth.get_access_token(code)
-app = InstagramClient(auth)
+app = InstagramApiClient(auth)
 
 
 # RECENT MEDIA - LAST 10
@@ -37,3 +39,22 @@ for m in media:
 tags = app.search_for_tag("developer", count=3)
 for tag, count in tags.items():
     print("{0}\t{1}".format(tag, count))
+
+app = InstagramJsonClient()
+media = app.get_by_user("nasa")
+
+print("L'utente {utente} ha postato {count} media (immagini o video).".format(
+    utente=next(iter(media), {}).get('user', {}).get('full_name', "maxmara"),
+    count=len(media)
+))
+print("Numero totale di likes: {}".format(
+    sum(m['likes']['count'] for m in media)
+))
+
+app = InstagramJsonClient()
+media = app.get_by_user("cern", count=1)
+pprint(media[0])
+
+media = app.get_by_hashtag("milanofashionweek")
+for m in media:
+    print(m['display_src'])

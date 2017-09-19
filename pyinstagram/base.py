@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 from operator import itemgetter
 
 import requests
@@ -14,9 +15,9 @@ class DotDict(dict):
         return self[name]
 
 
-class InstagramClient(object):
+class InstagramApiClient(object):
     """
-    Classe base della libreria!
+    Classe base per le chiamate all'API ufficiale!
     """
     def __init__(self, access_token=None):
         self.access_token = access_token
@@ -153,3 +154,76 @@ class InstagramClient(object):
         res = sorted(res, key=itemgetter('media_count'))
         names = {r['name']: r['media_count'] for r in res[:count]}
         return names
+
+
+class InstagramJsonClient(object):
+    """
+    Classe per fare semplici richieste in get senza usare access token
+    o le API ufficiali. Fa largo uso di url con query string.
+    """
+    def __init__(self):
+        self.base_url = "https://www.instagram.com/"
+
+    def get_by_user(self, user, count=None):
+        all_data = []
+        base_url = "{base}{user}/media/{{max}}".format(
+            base=self.base_url,
+            user=user
+        )
+        max_id = ""
+        next_url = base_url.format(max=max_id)
+        while True:
+            res = requests.get(next_url)
+            res = res.json()
+            if not res['status'] == "ok":
+                return all_data[:count]
+            all_data.extend(res['items'])
+            if res['items'] and res['more_available'] and (not len(all_data) > count if count else True):
+                try:
+                    max_id = res['items'][-1]['id']
+                    next_url = base_url.format(max="?max_id={}".format(max_id))
+                except IndexError:
+                    # aspetto un po', index è vuoto e Instagram mi blocca il flusso
+                    print(res)
+                    time.sleep(random.randint(10, 60))
+                else:
+                    # tutto ok, ho altri dati da scaricare
+                    continue
+            else:
+                # non ho dati, oppure ne ho di più di quelli voluti
+                break
+        return all_data[:count]
+
+    def get_by_hashtag(self, tags=(), count=1000000, top_posts=True):
+        if isinstance(tags, str):
+            tags = (tags, )
+        all_data = []
+        for tag in tags:
+            all_data_tag = []
+            base_url = "{base}explore/tags/{tag}?__a=1{{max}}".format(
+                base=self.base_url,
+                tag=tag
+            )
+            max_id = ""
+            next_url = base_url.format(max=max_id)
+            while True:
+                res = requests.get(next_url)
+                res = res.json()
+                media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
+                has_next_page = res['tag']['media']['page_info']['has_next_page']
+                all_data_tag.extend(media)
+                if media and has_next_page and not len(all_data_tag) > count and not top_posts:
+                    try:
+                        max_id = res['tag']['media']['page_info']['end_cursor']
+                        next_url = base_url.format(max="&max_id={}".format(max_id))
+                    except IndexError:
+                        # aspetto un po', index è vuoto e Instagram mi blocca il flusso
+                        time.sleep(random.randint(10, 60))
+                    else:
+                        # tutto ok, ho altri dati da scaricare
+                        continue
+                else:
+                    # non ho dati, oppure ne ho di più di quelli voluti
+                    break
+            all_data.extend(all_data_tag)
+        return all_data
