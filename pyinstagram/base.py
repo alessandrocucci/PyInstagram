@@ -160,6 +160,148 @@ class InstagramJsonClient(object):
         self.base_url = "https://www.instagram.com/"
 
     def get_by_user(self, user, count=None):
+        """
+        Ricerca post (pubblici) di un utente.
+        Gestisce automaticamente la paginazione.
+
+        Ritorna una lista di dizionari così composta:
+        [
+            {
+                id: "1606977067425770236_528817151",
+                code: "BZNISDyHKr8",
+                user: {
+                    id: "528817151",
+                    full_name: "NASA",
+                    profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/11375151_392132304319140_1291663475_a.jpg",
+                    username: "nasa"
+                },
+                images: {
+                    thumbnail: {
+                        width: 150,
+                        height: 150,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s150x150/e15/21690201_1801206810171539_7249344908006260736_n.jpg"
+                    },
+                    low_resolution: {
+                        width: 320,
+                        height: 320,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s320x320/e15/21690201_1801206810171539_7249344908006260736_n.jpg"
+                    },
+                    standard_resolution: {
+                        width: 640,
+                        height: 640,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s640x640/e15/21690201_1801206810171539_7249344908006260736_n.jpg"
+                    }
+                },
+                created_time: "1505786616",
+                caption: {
+                    id: "17887172635109592",
+                    text: "Look up in the sky tonight and see Saturn! This month Saturn is the only prominent evening planet low in the southwest sky. Look for it near the constellation Sagittarius. Above and below Saturn--from a dark sky--you can't miss the summer Milky Way spanning the sky from northeast to southwest! Grab a pair of binoculars and scan the teapot-shaped Sagittarius, where stars and some brighter clumps appear as steam from the teapot. Those bright clumps are near the center of our galaxy, which is full of gas, dust and stars. Credit: NASA #nasa #space #astronomy #september #whatsup #night #nightsky #stars #stargazing #saturn #planet",
+                    created_time: "1505786616",
+                    from: {
+                        id: "528817151",
+                        full_name: "NASA",
+                        profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/11375151_392132304319140_1291663475_a.jpg",
+                        username: "nasa"
+                    }
+                },
+                user_has_liked: false,
+                likes: {
+                    data: [
+                        {
+                            id: "4010977557",
+                            full_name: "Natalia",
+                            profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/s150x150/14482183_140565769737733_5249004653428867072_a.jpg",
+                            username: "nata.barata"
+                        },
+                        {
+                            id: "2055640911",
+                            full_name: "S@brin@ Lec○cq ♡☆♡",
+                            profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/s150x150/13534211_1557747037863158_1773299287_a.jpg",
+                            username: "melsab19"
+                        },
+                        {
+                            id: "752521983",
+                            full_name: "Laura Álvarez Peláez",
+                            profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/10624147_809215025765686_985825156_a.jpg",
+                            username: "lauriwushu"
+                        },
+                        {
+                            id: "1719376530",
+                            full_name: "Julia Paniti",
+                            profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/10985984_1575721159312127_239135761_a.jpg",
+                            username: "julia_paniti"
+                        }
+                    ],
+                    count: 204038
+                },
+                comments: {
+                    data: [
+                        {
+                            id: "17876620534138631",
+                            text: "@jennytried ❤️",
+                            created_time: "1505855823",
+                            from: {
+                                id: "4610349",
+                                full_name: "",
+                                profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/10932285_747424172021124_1089839988_a.jpg",
+                                username: "siskascherz"
+                            }
+                        },
+                        {
+                            id: "17899664473040297",
+                            text: "@a.hm.ed.1",
+                            created_time: "1505855825",
+                            from: {
+                                id: "416900232",
+                                full_name: "Maryem BenKh",
+                                profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/s150x150/16907969_415736022127336_8841431139366207488_a.jpg",
+                                username: "maariam_bk"
+                            }
+                        },
+                        {
+                            id: "17871962107174729",
+                            text: "Wonderful 😍",
+                            created_time: "1505855872",
+                            from: {
+                                id: "2982243595",
+                                full_name: "Smit Raj",
+                                profile_picture: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-19/s150x150/21690360_117321958944805_772082897589895168_n.jpg",
+                                username: "smit_raj_"
+                            }
+                        }
+                    ],
+                count: 1564
+                },
+                can_view_comments: true,
+                can_delete_comments: false,
+                type: "video",
+                link: "https://www.instagram.com/p/BZNISDyHKr8/",
+                location: null,
+                alt_media_url: "https://scontent-mxp1-1.cdninstagram.com/t50.2886-16/21904634_340030459792492_153261372472295424_n.mp4",
+                videos: {
+                    standard_resolution: {
+                        width: 640,
+                        height: 640,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t50.2886-16/21904634_340030459792492_153261372472295424_n.mp4"
+                    },
+                    low_bandwidth: {
+                        width: 480,
+                        height: 480,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t50.2886-16/21868687_149708205622876_4737472794344816640_n.mp4"
+                    },
+                    low_resolution: {
+                        width: 480,
+                        height: 480,
+                        url: "https://scontent-mxp1-1.cdninstagram.com/t50.2886-16/21868687_149708205622876_4737472794344816640_n.mp4"
+                    }
+                },
+                video_views: 1012473
+            },
+        ]
+        :param user: str - username Instagram
+        :param count: int - limita il numero di risultati
+        :return:
+        """
         all_data = []
         base_url = "{base}{user}/media/{{max}}".format(
             base=self.base_url,
@@ -190,6 +332,65 @@ class InstagramJsonClient(object):
         return all_data[:count]
 
     def get_by_hashtag(self, tags=(), count=1000000, top_posts=True):
+        """
+        Ricerca per hashtag.
+        Gestisce automaticamente la paginazione.
+
+        Ritorna una lista di dizionari fatti come segue:
+
+        [
+            {
+                comments_disabled: false,
+                id: "1607551655901147333",
+                dimensions: {
+                    height: 640,
+                    width: 640
+                },
+                owner: {
+                    id: "981246989"
+                },
+                thumbnail_src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                thumbnail_resources: [
+                    {
+                        src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s150x150/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                        config_width: 150,
+                        config_height: 150
+                    },
+                    {
+                        src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s240x240/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                        config_width: 240,
+                        config_height: 240
+                    },
+                    {
+                        src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s320x320/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                        config_width: 320,
+                        config_height: 320
+                    },
+                    {
+                        src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/s480x480/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                        config_width: 480,
+                        config_height: 480
+                    }
+                ],
+                is_video: false,
+                code: "BZPK7bAFDDF",
+                date: 1505855112,
+                display_src: "https://scontent-mxp1-1.cdninstagram.com/t51.2885-15/e35/21820166_125621088095492_8628217971971457024_n.jpg",
+                caption: "Tommy Hilfiger London Fashion Week Spring_Summer 2018 @londonfashionweek @britishfashioncouncil @tommyhilfiger #londonfashionweek#LFW#fashion#paris#fashionblogger#tehran#fashioneditor#fashionweek#style#streetstyle##milan#london#newyork#mfw#lfw#nyfw#vogue#gq#art#love#fashionshow#blogger#life#event#ss2018#instafashion#runway#fashionmoment0#TOMMYNOW",
+                comments: {
+                    count: 1
+                },
+                likes: {
+                    count: 24
+                }
+            },
+        ]
+
+        :param tags: str or tuple - hashtag (senza il #) o tupla di hastag
+        :param count: int - limita i risultati
+        :param top_posts: bool - limita ai top posts altrimenti ritorna tutto
+        :return: list - lista di dizionari
+        """
         if isinstance(tags, str):
             tags = (tags, )
         all_data = []
