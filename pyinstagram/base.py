@@ -5,6 +5,7 @@ from operator import itemgetter
 import requests
 import time
 
+from pyinstagram.model import Media
 from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
 from .constants import API_URL
@@ -337,7 +338,8 @@ class InstagramJsonClient(object):
         Ricerca per hashtag.
         Gestisce automaticamente la paginazione.
 
-        Ritorna una lista di dizionari fatti come segue:
+        Ritorna una lista di oggetti SqlAlchemy a partire da
+        una lista di dizionari fatti come segue:
 
         [
             {
@@ -394,6 +396,21 @@ class InstagramJsonClient(object):
         """
         if isinstance(tags, str):
             tags = (tags, )
+
+        mapper = {
+            'id': 'id',
+            'comments': 'comments.count',
+            'unix_datetime': 'date',
+            'user': 'owner.id',
+            'likes': 'likes.count',
+            'is_video': 'is_video',
+            'url': 'display_src',
+            'height': 'dimensions.height',
+            'width': 'dimensions.width',
+            'caption': 'caption',
+            'code': 'code'
+        }
+
         all_data = []
         for tag in tags:
             all_data_tag = []
@@ -406,10 +423,24 @@ class InstagramJsonClient(object):
             while True:
                 res = requests.get(next_url)
                 res = res.json()
-                media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
+                res_media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
                 has_next_page = res['tag']['media']['page_info']['has_next_page']
-                all_data_tag.extend(media)
-                if media and has_next_page and not len(all_data_tag) > count and not top_posts:
+
+                # converto in oggetti SqlAlchemy
+                sqlalchemy_media = []
+                for element in res_media:
+                    model = Media()
+                    for field_to, getter in mapper.items():
+                        path = getter.split('.')
+                        val = element
+                        for key in path:
+                            val = val[key]
+                        setattr(model, field_to, val)
+                    model.json = element
+                    sqlalchemy_media.append(model)
+                all_data_tag.extend(sqlalchemy_media)
+
+                if res_media and has_next_page and not len(all_data_tag) > count and not top_posts:
                     try:
                         max_id = res['tag']['media']['page_info']['end_cursor']
                         next_url = base_url.format(max="&max_id={}".format(max_id))
@@ -423,4 +454,47 @@ class InstagramJsonClient(object):
                     # non ho dati, oppure ne ho di più di quelli voluti
                     break
             all_data.extend(all_data_tag)
+        return all_data[:count]
+
+    def get_by_media_codes(self, codes=(), all_comments=False):
+        """
+        Restituisce una lista contenente i dati dei post richiesti
+        (identificati dalla stringa 'code' del post). Attivando
+        il flag all_comments, verranno fatte ulteriori richieste
+        gestendo la paginazione dei commenti. I commenti verranno
+        aggiunti al json originale in modo da avere alla fina una
+        lista composta da tanti elementi quanti sono i post
+        richiesti.
+
+        :param codes: stringa del codice o tupla con i codici dei post
+        :param all_comments: bool - se attivato, scarica tutti i commenti
+        :return: lista di json con i dati dei post richiesti
+        """
+        if isinstance(codes, str):
+            codes = (codes,)
+
+        all_data = []
+
+        for code in codes:
+            url = "{base}p/{code}?__a=1".format(
+                base=self.base_url,
+                code=code
+            )
+            res = requests.get(url)
+            res = res.json()
+            if all_comments:
+                while True:
+                    page_info = res['graphql']['shortcode_media']['edge_media_to_comment']['page_info']
+                    if page_info['has_next_page']:
+                        next_url = url + "&max_id={}".format(page_info['end_cursor'])
+                        next_res = requests.get(next_url)
+                        next_res = next_res.json()
+                        res_edges = res['graphql']['shortcode_media']['edge_media_to_comment']['edges']
+                        next_edges = next_res['graphql']['shortcode_media']['edge_media_to_comment']['edges']
+                        res_edges.extend(next_edges)
+                    else:
+                        break
+            all_data.append(res)
         return all_data
+
+

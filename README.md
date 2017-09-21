@@ -14,9 +14,8 @@ Si compone di tre classi principali:
 
 # Nuove Funzionalità!
 
-  - Ricerca post recenti per nomeutente
-  - Ricerca post per hashtag
-  - Ricerca hashtag simili (in base al numero di post)
+  - La funzione get_by_hashtag può ritornare oggetti SqlAlchemy
+  - Aggiunta funzione get_by_media_codes (fa lo scraping completo di un post)
 
 
 ## Installazione
@@ -330,9 +329,8 @@ Forka il repository, scrivi le tue modifiche, e mandami una Pull Request.
  - Trasformare tutti gli endpoint in oggetti SqlAlchemy
  - Gestire il caso in cui un access token scada
  - Aggiungere ricerca per geolocalizzazione
- - Aggiungere filtri per min_id e max_id
  - Scrivere integration test
- - Scrivere documentazione
+ - Scrivere una documentazione seria
  - Se tutto va come deve, scrivere i metodi per le richieste in push, in modo da poter usare questa libreria anche per eventuali bots.
 
 Licenza
