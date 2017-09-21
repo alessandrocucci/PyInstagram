@@ -316,7 +316,7 @@ Image(url=media[0]['images']['low_resolution']['url'])
 ```python
 media = app.get_by_hashtag("milanofashionweek")
 for m in media:
-    print(m['display_src'])
+    print(m.likes)
 ```
 
 ## Development
