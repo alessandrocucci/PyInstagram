@@ -495,7 +495,9 @@ class InstagramJsonClient(object):
                         path = getter.split('.')
                         val = element
                         for key in path:
-                            val = val[key]
+                            val = val.get(key, {})
+                        if isinstance(val, dict):
+                            val = None
                         setattr(model, field_to, val)
                     model.json = element
                     sqlalchemy_media.append(model)
