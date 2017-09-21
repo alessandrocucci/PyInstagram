@@ -560,7 +560,7 @@ class InstagramJsonClient(object):
             # gestire il caso in cui volessi solo risultati in un certo intervallo,
             # verifico che il mio post sia stato creato in questo lasso di tempo.
 
-            created_at = int(res['taken_at_timestamp'])
+            created_at = int(res['graphql']['taken_at_timestamp'])
             if since and created_at < time.mktime(since.timetuple()):
                 continue
             if until and created_at > time.mktime(until.timetuple()):
