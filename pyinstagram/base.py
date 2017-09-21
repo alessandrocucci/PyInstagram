@@ -328,7 +328,10 @@ class InstagramJsonClient(object):
         next_url = base_url.format(max=max_id)
         while True:
             res = requests.get(next_url)
-            res = res.json()
+            try:
+                res = res.json()
+            except Exception:
+                raise PyInstagramException((next_url, res.text))
             if not res['status'] == "ok":
                 return all_data[:count]
 
