@@ -553,7 +553,10 @@ class InstagramJsonClient(object):
                 code=code
             )
             res = requests.get(url)
-            res = res.json()
+            try:
+                res = res.json()
+            except Exception:
+                raise PyInstagramException(res.text)
 
             # Instagram non mi permette di cercare per data, però mi fornisce la
             # data di creazione del post in formato Unix Timestamp. Quindi, per
