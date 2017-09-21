@@ -495,10 +495,7 @@ class InstagramJsonClient(object):
                         path = getter.split('.')
                         val = element
                         for key in path:
-                            try:
-                                val = val.get(key, {})
-                            except KeyError:
-                                raise Exception((val, key))
+                            val = val.get(key, {})
                         if isinstance(val, dict):
                             val = None
                         setattr(model, field_to, val)
