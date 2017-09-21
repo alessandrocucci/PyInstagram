@@ -331,7 +331,7 @@ class InstagramJsonClient(object):
             try:
                 res = res.json()
             except Exception:
-                raise PyInstagramException((next_url, res.text))
+                raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(next_url))
             if not res['status'] == "ok":
                 return all_data[:count]
 
@@ -559,7 +559,7 @@ class InstagramJsonClient(object):
             try:
                 res = res.json()
             except Exception:
-                raise PyInstagramException(res.text)
+                raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(url))
 
             # Instagram non mi permette di cercare per data, però mi fornisce la
             # data di creazione del post in formato Unix Timestamp. Quindi, per
