@@ -14,6 +14,7 @@ Si compone di tre classi principali:
 
 # Nuove Funzionalità!
 
+  - Aggiunti filtri per ricerca con timestamp ai metodi di InstagramJsonClient
   - La funzione get_by_hashtag può ritornare oggetti SqlAlchemy
   - Aggiunta funzione get_by_media_codes (fa lo scraping completo di un post)
 

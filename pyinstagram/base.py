@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+from datetime import datetime
 from operator import itemgetter
 
 import requests
@@ -161,7 +162,7 @@ class InstagramJsonClient(object):
     def __init__(self):
         self.base_url = "https://www.instagram.com/"
 
-    def get_by_user(self, user, count=None):
+    def get_by_user(self, user, count=None, since=None, until=None):
         """
         Ricerca post (pubblici) di un utente.
         Gestisce automaticamente la paginazione.
@@ -302,8 +303,22 @@ class InstagramJsonClient(object):
         ]
         :param user: str - username Instagram
         :param count: int - limita il numero di risultati
+        :param since: str - Risultati a partire da questa data, es. "20170101000000"
+        :param until: str - Risultati entro questa data, es. "20171231235959"
         :return:
         """
+        if since:
+            try:
+                since = datetime.strptime(since, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro since non è in un formato corretto (es. '20170101000000')")
+
+        if until:
+            try:
+                until = datetime.strptime(until, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
+
         all_data = []
         base_url = "{base}{user}/media/{{max}}".format(
             base=self.base_url,
@@ -316,8 +331,24 @@ class InstagramJsonClient(object):
             res = res.json()
             if not res['status'] == "ok":
                 return all_data[:count]
-            all_data.extend(res['items'])
+
+            for media_res in res['items']:
+
+                # Instagram non mi permette di cercare per data, però mi fornisce la
+                # data di creazione del post in formato Unix Timestamp. Quindi, per
+                # gestire il caso in cui volessi solo risultati in un certo intervallo,
+                # verifico che il mio post sia stato creato in questo lasso di tempo.
+
+                created_at = int(media_res['created_time'])
+                if since and created_at < time.mktime(since.timetuple()):
+                    # sono andato troppo indietro, posso uscire
+                    return all_data[:count]
+                if until and created_at > time.mktime(until.timetuple()):
+                    continue
+                all_data.append(media_res)
+
             if res['items'] and res['more_available'] and (not len(all_data) > count if count else True):
+                # ho oggetti, ne ho altri da scaricare, e non ho raggiunto il limite di risultati
                 try:
                     max_id = res['items'][-1]['id']
                     next_url = base_url.format(max="?max_id={}".format(max_id))
@@ -333,7 +364,7 @@ class InstagramJsonClient(object):
                 break
         return all_data[:count]
 
-    def get_by_hashtag(self, tags=(), count=1000000, top_posts=True):
+    def get_by_hashtag(self, tags=(), count=1000000, top_posts=True, since=None, until=None):
         """
         Ricerca per hashtag.
         Gestisce automaticamente la paginazione.
@@ -392,10 +423,24 @@ class InstagramJsonClient(object):
         :param tags: str or tuple - hashtag (senza il #) o tupla di hastag
         :param count: int - limita i risultati
         :param top_posts: bool - limita ai top posts altrimenti ritorna tutto
+        :param since: str - Risultati a partire da questa data, es. "20170101000000"
+        :param until: str - Risultati entro questa data, es. "20171231235959"
         :return: list - lista di dizionari
         """
         if isinstance(tags, str):
             tags = (tags, )
+
+        if since:
+            try:
+                since = datetime.strptime(since, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro since non è in un formato corretto (es. '20170101000000')")
+
+        if until:
+            try:
+                until = datetime.strptime(until, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
 
         mapper = {
             'id': 'id',
@@ -429,6 +474,19 @@ class InstagramJsonClient(object):
                 # converto in oggetti SqlAlchemy
                 sqlalchemy_media = []
                 for element in res_media:
+
+                    # Instagram non mi permette di cercare per data, però mi fornisce la
+                    # data di creazione del post in formato Unix Timestamp. Quindi, per
+                    # gestire il caso in cui volessi solo risultati in un certo intervallo,
+                    # verifico che il mio post sia stato creato in questo lasso di tempo.
+
+                    created_at = int(element['date'])
+                    if since and created_at < time.mktime(since.timetuple()):
+                        # sono andato troppo indietro, posso uscire
+                        break
+                    if until and created_at > time.mktime(until.timetuple()):
+                        continue
+
                     model = Media()
                     for field_to, getter in mapper.items():
                         path = getter.split('.')
@@ -456,7 +514,7 @@ class InstagramJsonClient(object):
             all_data.extend(all_data_tag)
         return all_data[:count]
 
-    def get_by_media_codes(self, codes=(), all_comments=False):
+    def get_by_media_codes(self, codes=(), all_comments=False, since=None, until=None):
         """
         Restituisce una lista contenente i dati dei post richiesti
         (identificati dalla stringa 'code' del post). Attivando
@@ -468,10 +526,24 @@ class InstagramJsonClient(object):
 
         :param codes: stringa del codice o tupla con i codici dei post
         :param all_comments: bool - se attivato, scarica tutti i commenti
+        :param since: str - Risultati a partire da questa data, es. "20170101000000"
+        :param until: str - Risultati entro questa data, es. "20171231235959"
         :return: lista di json con i dati dei post richiesti
         """
         if isinstance(codes, str):
             codes = (codes,)
+
+        if since:
+            try:
+                since = datetime.strptime(since, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro since non è in un formato corretto (es. '20170101000000')")
+
+        if until:
+            try:
+                until = datetime.strptime(until, "%Y%m%d%H%M%S")
+            except ValueError:
+                raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
 
         all_data = []
 
@@ -482,6 +554,18 @@ class InstagramJsonClient(object):
             )
             res = requests.get(url)
             res = res.json()
+
+            # Instagram non mi permette di cercare per data, però mi fornisce la
+            # data di creazione del post in formato Unix Timestamp. Quindi, per
+            # gestire il caso in cui volessi solo risultati in un certo intervallo,
+            # verifico che il mio post sia stato creato in questo lasso di tempo.
+
+            created_at = int(res['taken_at_timestamp'])
+            if since and created_at < time.mktime(since.timetuple()):
+                continue
+            if until and created_at > time.mktime(until.timetuple()):
+                continue
+
             if all_comments:
                 while True:
                     page_info = res['graphql']['shortcode_media']['edge_media_to_comment']['page_info']
