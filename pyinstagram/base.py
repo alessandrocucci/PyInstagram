@@ -519,7 +519,7 @@ class InstagramJsonClient(object):
             all_data.extend(all_data_tag)
         return all_data[:count]
 
-    def get_by_media_codes(self, codes=(), all_comments=False, since=None, until=None):
+    def get_by_media_codes(self, codes=(), all_comments=False):
         """
         Restituisce una lista contenente i dati dei post richiesti
         (identificati dalla stringa 'code' del post). Attivando
@@ -531,24 +531,10 @@ class InstagramJsonClient(object):
 
         :param codes: stringa del codice o tupla con i codici dei post
         :param all_comments: bool - se attivato, scarica tutti i commenti
-        :param since: str - Risultati a partire da questa data, es. "20170101000000"
-        :param until: str - Risultati entro questa data, es. "20171231235959"
         :return: lista di json con i dati dei post richiesti
         """
         if isinstance(codes, str):
             codes = (codes,)
-
-        if since:
-            try:
-                since = datetime.strptime(since, "%Y%m%d%H%M%S")
-            except ValueError:
-                raise ValueError("Il parametro since non è in un formato corretto (es. '20170101000000')")
-
-        if until:
-            try:
-                until = datetime.strptime(until, "%Y%m%d%H%M%S")
-            except ValueError:
-                raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
 
         all_data = []
 
@@ -561,18 +547,11 @@ class InstagramJsonClient(object):
             try:
                 res = res.json()
             except Exception:
-                raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(url))
-
-            # Instagram non mi permette di cercare per data, però mi fornisce la
-            # data di creazione del post in formato Unix Timestamp. Quindi, per
-            # gestire il caso in cui volessi solo risultati in un certo intervallo,
-            # verifico che il mio post sia stato creato in questo lasso di tempo.
-
-            created_at = int(res['graphql']['shortcode_media']['taken_at_timestamp'])
-            if since and created_at < time.mktime(since.timetuple()):
-                continue
-            if until and created_at > time.mktime(until.timetuple()):
-                continue
+                if "Sorry, this page isn't available" in res.text:
+                    # Post rimosso o non più raggiungibile
+                    continue
+                else:
+                    raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(url))
 
             if all_comments:
                 while True:
