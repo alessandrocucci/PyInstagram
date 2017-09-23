@@ -31,7 +31,7 @@ from .oauth import *
 
 __title__ = 'pyinstagram'
 __description__ = 'Instagram HTTP wrapper for Python Developers.'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 __author__ = 'Alessandro Cucci'
 __author_email__ = 'alessandro.cucci@gmail.com'
 __author_url__ = 'http://www.alessandrocucci.it/'

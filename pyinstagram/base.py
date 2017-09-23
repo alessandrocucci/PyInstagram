@@ -10,6 +10,7 @@ from pyinstagram.model import Media
 from .exceptions import OAuthException, PyInstagramException
 from .oauth import OAuth
 from .constants import API_URL
+from .utils import DESAdapter
 
 
 class InstagramApiClient(object):
@@ -161,6 +162,13 @@ class InstagramJsonClient(object):
     """
     def __init__(self):
         self.base_url = "https://www.instagram.com/"
+        self.session = self._init_session()
+
+    def _init_session(self):
+        """Abilita il supporto 3DES su Instagram"""
+        s = requests.Session()
+        s.mount(self.base_url, DESAdapter())
+        return s
 
     def get_by_user(self, user, count=None, since=None, until=None):
         """
@@ -327,7 +335,7 @@ class InstagramJsonClient(object):
         max_id = ""
         next_url = base_url.format(max=max_id)
         while True:
-            res = requests.get(next_url)
+            res = self.session.get(next_url)
             try:
                 res = res.json()
             except Exception:
@@ -469,7 +477,7 @@ class InstagramJsonClient(object):
             max_id = ""
             next_url = base_url.format(max=max_id)
             while True:
-                res = requests.get(next_url)
+                res = self.session.get(next_url)
                 res = res.json()
                 res_media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
                 has_next_page = res['tag']['media']['page_info']['has_next_page']
@@ -543,7 +551,7 @@ class InstagramJsonClient(object):
                 base=self.base_url,
                 code=code
             )
-            res = requests.get(url)
+            res = self.session.get(url)
             try:
                 res = res.json()
             except Exception:
@@ -558,7 +566,7 @@ class InstagramJsonClient(object):
                     page_info = res['graphql']['shortcode_media']['edge_media_to_comment']['page_info']
                     if page_info['has_next_page']:
                         next_url = url + "&max_id={}".format(page_info['end_cursor'])
-                        next_res = requests.get(next_url)
+                        next_res = self.session.get(next_url)
                         next_res = next_res.json()
                         res_edges = res['graphql']['shortcode_media']['edge_media_to_comment']['edges']
                         next_edges = next_res['graphql']['shortcode_media']['edge_media_to_comment']['edges']
