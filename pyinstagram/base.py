@@ -478,7 +478,10 @@ class InstagramJsonClient(object):
             next_url = base_url.format(max=max_id)
             while True:
                 res = self.session.get(next_url)
-                res = res.json()
+                try:
+                    res = res.json()
+                except Exception:
+                    raise Exception((res.url, res.text))
                 res_media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
                 has_next_page = res['tag']['media']['page_info']['has_next_page']
 

@@ -13,7 +13,7 @@ PyInstagram Library
 ~~~~~~~~~~~~~~~~~~~
 
 PyInstagram è una libreria Python per il download
-di dati Instagram in formato json o "pythonico"
+di dati Instagram in formato "pythonico"
 
 Esempi di utilizzo:
 
@@ -26,8 +26,8 @@ Esempi di utilizzo:
  >>>   print(m['display_src'])
 
 """
-from .base import *
-from .oauth import *
+from .base import InstagramApiClient, InstagramJsonClient
+from .oauth import OAuth
 
 __title__ = 'pyinstagram'
 __description__ = 'Instagram HTTP wrapper for Python Developers.'
@@ -37,3 +37,5 @@ __author_email__ = 'alessandro.cucci@gmail.com'
 __author_url__ = 'http://www.alessandrocucci.it/'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2017 Alessandro Cucci'
+
+__all__ = ['OAuth', 'InstagramApiClient', 'InstagramJsonClient']
