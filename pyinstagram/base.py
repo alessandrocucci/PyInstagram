@@ -481,7 +481,11 @@ class InstagramJsonClient(object):
                 try:
                     res = res.json()
                 except Exception:
-                    raise Exception((res.url, res.text))
+                    if "Sorry, this page isn't available" in res.text:
+                        # Post rimosso o non più raggiungibile
+                        continue
+                    else:
+                        raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(next_url))
                 res_media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
                 has_next_page = res['tag']['media']['page_info']['has_next_page']
 
