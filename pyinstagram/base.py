@@ -176,7 +176,7 @@ class InstagramJsonClient(object):
         :param user: username Instagram
         :return: dizionario con le info dell'utente
         """
-        base_url = "{base}{user}/media/".format(
+        base_url = "{base}{user}/?__a=1".format(
             base=self.base_url,
             user=user
         )

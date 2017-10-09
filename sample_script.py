@@ -57,7 +57,7 @@ pprint(media[0])
 
 media = app.get_by_hashtag("milanofashionweek")
 for m in media:
-    print(m['display_src'])
+    print(m.json['display_src'])
 
 app = InstagramJsonClient()
 media = app.get_by_hashtag("mfw", count=1, top_posts=False)[0]
