@@ -170,6 +170,23 @@ class InstagramJsonClient(object):
         s.mount(self.base_url, DESAdapter())
         return s
 
+    def get_user_info(self, user):
+        """
+        Ritorna le informazioni di un utente
+        :param user: username Instagram
+        :return: dizionario con le info dell'utente
+        """
+        base_url = "{base}{user}/media/".format(
+            base=self.base_url,
+            user=user
+        )
+        res = self.session.get(base_url)
+        try:
+            res = res.json()
+        except Exception:
+            raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(base_url))
+        return res.get('user', {})
+
     def get_by_user(self, user, count=None, since=None, until=None):
         """
         Ricerca post (pubblici) di un utente.
