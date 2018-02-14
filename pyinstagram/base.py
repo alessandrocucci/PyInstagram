@@ -345,7 +345,7 @@ class InstagramJsonClient(object):
                 raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
 
         all_data = []
-        base_url = "{base}{user}?a__=1{{max}}".format(
+        base_url = "{base}{user}?__a=1{{max}}".format(
             base=self.base_url,
             user=user
         )
