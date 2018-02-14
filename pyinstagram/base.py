@@ -345,7 +345,7 @@ class InstagramJsonClient(object):
                 raise ValueError("Il parametro until non è in un formato corretto (es. '20170101000000')")
 
         all_data = []
-        base_url = "{base}{user}/media/{{max}}".format(
+        base_url = "{base}{user}?a__=1{{max}}".format(
             base=self.base_url,
             user=user
         )
@@ -379,7 +379,7 @@ class InstagramJsonClient(object):
                 # ho oggetti, ne ho altri da scaricare, e non ho raggiunto il limite di risultati
                 try:
                     max_id = res['items'][-1]['id']
-                    next_url = base_url.format(max="?max_id={}".format(max_id))
+                    next_url = base_url.format(max="&max_id={}".format(max_id))
                 except IndexError:
                     # aspetto un po', index è vuoto e Instagram mi blocca il flusso
                     print(res)
