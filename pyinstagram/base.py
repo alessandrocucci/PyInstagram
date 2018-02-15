@@ -353,21 +353,21 @@ class InstagramJsonClient(object):
         next_url = base_url.format(max=max_id)
         while True:
             res = self.session.get(next_url)
+            if not res.status_code == 200:
+                return all_data[:count]
             try:
                 res = res.json()
             except Exception:
                 raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(next_url))
-            if not res['status'] == "ok":
-                return all_data[:count]
 
-            for media_res in res['items']:
+            for media_res in res['user']['media']['nodes']:
 
                 # Instagram non mi permette di cercare per data, però mi fornisce la
                 # data di creazione del post in formato Unix Timestamp. Quindi, per
                 # gestire il caso in cui volessi solo risultati in un certo intervallo,
                 # verifico che il mio post sia stato creato in questo lasso di tempo.
 
-                created_at = int(media_res['created_time'])
+                created_at = int(media_res['date'])
                 if since and created_at < time.mktime(since.timetuple()):
                     # sono andato troppo indietro, posso uscire
                     return all_data[:count]
@@ -375,14 +375,13 @@ class InstagramJsonClient(object):
                     continue
                 all_data.append(media_res)
 
-            if res['items'] and res['more_available'] and (not len(all_data) > count if count else True):
+            if res['user']['media']['nodes'] and (not len(all_data) > count if count else True):
                 # ho oggetti, ne ho altri da scaricare, e non ho raggiunto il limite di risultati
                 try:
-                    max_id = res['items'][-1]['id']
+                    max_id = res['user']['media']['nodes'][-1]['id']
                     next_url = base_url.format(max="&max_id={}".format(max_id))
                 except IndexError:
                     # aspetto un po', index è vuoto e Instagram mi blocca il flusso
-                    print(res)
                     time.sleep(random.randint(10, 60))
                 else:
                     # tutto ok, ho altri dati da scaricare
@@ -472,16 +471,15 @@ class InstagramJsonClient(object):
 
         mapper = {
             'id': 'id',
-            'comments': 'comments.count',
-            'unix_datetime': 'date',
+            'comments': 'edge_media_to_comment.count',
+            'unix_datetime': 'taken_at_timestamp',
             'user': 'owner.id',
-            'likes': 'likes.count',
+            'likes': 'edge_liked_by.count',
             'is_video': 'is_video',
             'url': 'display_src',
             'height': 'dimensions.height',
             'width': 'dimensions.width',
-            'caption': 'caption',
-            'code': 'code'
+            'code': 'shortcode'
         }
 
         all_data = []
@@ -503,19 +501,19 @@ class InstagramJsonClient(object):
                         continue
                     else:
                         raise PyInstagramException("Impossibile scaricare i dati dall'indirizzo: {}".format(next_url))
-                res_media = res['tag']['top_posts']['nodes'] if top_posts else res['tag']['media']['nodes']
-                has_next_page = res['tag']['media']['page_info']['has_next_page']
+                res_media = res['graphql']['hashtag']['edge_hashtag_to_top_posts'] if top_posts else res['graphql']['hashtag']['edge_hashtag_to_media']
+                has_next_page = res['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page']
 
                 # converto in oggetti SqlAlchemy
                 sqlalchemy_media = []
-                for element in res_media:
+                for element in res_media['edges']:
 
                     # Instagram non mi permette di cercare per data, però mi fornisce la
                     # data di creazione del post in formato Unix Timestamp. Quindi, per
                     # gestire il caso in cui volessi solo risultati in un certo intervallo,
                     # verifico che il mio post sia stato creato in questo lasso di tempo.
 
-                    created_at = int(element['date'])
+                    created_at = int(element['node']['taken_at_timestamp'])
                     if since and created_at < time.mktime(since.timetuple()):
                         # sono andato troppo indietro, posso uscire
                         break
@@ -525,19 +523,20 @@ class InstagramJsonClient(object):
                     model = Media()
                     for field_to, getter in mapper.items():
                         path = getter.split('.')
-                        val = element
+                        val = element['node']
                         for key in path:
                             val = val.get(key, {})
                         if isinstance(val, dict):
                             val = None
                         setattr(model, field_to, val)
-                    model.json = element
+                    model.json = element['node']
+                    model.caption = element['node']['edge_media_to_caption']['edges'][0]['node']['text']
                     sqlalchemy_media.append(model)
                 all_data_tag.extend(sqlalchemy_media)
 
-                if res_media and has_next_page and not len(all_data_tag) > count and not top_posts:
+                if res_media['edges'] and has_next_page and not len(all_data_tag) > count and not top_posts:
                     try:
-                        max_id = res['tag']['media']['page_info']['end_cursor']
+                        max_id = res['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor']
                         next_url = base_url.format(max="&max_id={}".format(max_id))
                     except IndexError:
                         # aspetto un po', index è vuoto e Instagram mi blocca il flusso
